@@ -1,0 +1,78 @@
+"A datetime string with format `Y-m-d H:i:s`, e.g. `2018-01-01 13:00:00`."
+scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\DateTime")
+
+"A date string with format `Y-m-d`, e.g. `2011-05-23`."
+scalar Date @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date")
+
+type Query {
+    users: [User!]! @all
+    user(id: ID @eq): User @find
+    categories: [Category!]! @all
+    category(id: ID @eq): Category @find
+    products: [Product!]! @all
+    product(id: ID @eq): Product @find
+}
+
+type User {
+    id: ID!
+    name: String!
+    email: String!
+    password: String!
+    created_at: DateTime!
+    updated_at: DateTime!
+}
+
+type Category {
+    id: ID!
+    name: String!
+    products: [Product!]! @hasMany
+}
+
+type Product {
+    id: ID!
+    name: String!
+    value: Float!
+    quantity: Int!
+    category_id: ID!
+    category: Category! @belongsTo
+}
+
+type Mutation {
+    createUser(
+        name: String! @rules(apply: ["min:4"])
+        email: String! @rules(apply: ["email"])
+        password: String! @rules(apply: ["min:6"]) @bcrypt
+    ): User @create
+
+    createCategory(
+        name: String! @rules(apply: ["min:4"])
+    ): Category @create
+
+     createProduct(
+        name: String! @rules(apply: ["min:4"])
+        value: Float!
+        quantity: Int!
+        category_id: ID!
+    ): Product @create
+
+    updateCategory(
+        id: ID!
+        name: String! @rules(apply: ["min:4"])
+    ): Category @update
+
+    updateProduct(
+        id: ID!
+        name: String @rules(apply: ["min:4"])
+        value: Float
+        quantity: Int
+        category_id: ID
+    ): Product @update
+
+    deleteCategory(
+        id: ID!
+    ): Category @delete
+
+    deleteProduct(
+        id: ID!
+    ): Product @delete
+}
